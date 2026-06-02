@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import SmoothScroll from "@/components/SmoothScroll";
 import Scene3D from "@/components/Scene3D";
+import EvalForm from "@/components/EvalForm";
 import {
   ArrowRight, ShoppingCart, Globe, MessageCircle,
-  Users, Code2, FileText, CheckCircle2, Send, Zap,
+  Users, Code2, FileText, Zap,
 } from "lucide-react";
 
 
@@ -297,126 +298,15 @@ function SolutionsSection() {
 }
 
 /* ══════════════════════════════════════
-   SECTION 5 — ASSESSMENT
+   SECTION 5 — ASSESSMENT (full step-by-step)
 ══════════════════════════════════════ */
-const WA = "18293430288";
-const svcOpts = [
-  { k: "pos",  l: "Sistema POS" }, { k: "web",  l: "Página Web" },
-  { k: "wa",   l: "WhatsApp 24/7" }, { k: "crm", l: "CRM" },
-  { k: "fact", l: "Facturación" }, { k: "sys",  l: "Sistema personalizado" },
-];
-const budgetOpts = [
-  { k: "a", l: "RD$10,000 – RD$25,000" }, { k: "b", l: "RD$25,000 – RD$50,000" },
-  { k: "c", l: "RD$50,000 – RD$100,000" }, { k: "d", l: "Más de RD$100,000" },
-];
-
 function AssessmentSection() {
-  const [svcs, setSvcs] = useState<string[]>([]);
-  const [budget, setBudget] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [biz, setBiz] = useState("");
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const selSvcs = svcOpts.filter(s => svcs.includes(s.k)).map(s => `• ${s.l}`).join("\n");
-    const selBudget = budgetOpts.find(b => b.k === budget)?.l ?? "No especificado";
-    const msg = encodeURIComponent(
-      `🚀 *Evaluación MONTECH*\n\n👤 *Nombre:* ${name}\n📱 *WhatsApp:* ${phone}\n🏪 *Negocio:* ${biz}\n\n💡 *Soluciones:*\n${selSvcs || "• No especificado"}\n\n💰 *Presupuesto:* ${selBudget}`
-    );
-    window.open(`https://wa.me/${WA}?text=${msg}`, "_blank");
-  }
-
-  const inp = "w-full rounded-xl px-4 py-3 text-white placeholder-slate-600 text-sm outline-none transition-all"
-    + " focus:ring-1 focus:ring-brand-blue/40"
-    + " " + "bg-white/[0.04] border border-white/10 focus:border-brand-blue/40";
-
   return (
-    <section id="assessment" className="relative z-10 py-24 px-6">
+    <section id="assessment" className="relative z-10 py-16 px-4">
       <div className="absolute inset-0 pointer-events-none"
         style={{ background: "rgba(0,0,8,0.95)" }} />
-
-      <div className="relative max-w-2xl mx-auto">
-        <Reveal className="text-center mb-10">
-          <span className="eyebrow mb-5 inline-block">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse" />
-            Evaluación gratis
-          </span>
-          <h2 className="font-black text-white leading-none tracking-tight mb-3"
-            style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
-            ¿Qué necesita <span className="text-gradient">tu negocio?</span>
-          </h2>
-          <p className="text-slate-500 text-sm">Cuéntanos y te enviamos una propuesta personalizada en 24h.</p>
-        </Reveal>
-
-        <Reveal delay={0.2}>
-          <form onSubmit={submit}
-            className="rounded-3xl p-7 md:p-9 space-y-6"
-            style={{ background: "rgba(8,12,38,0.98)", border: "1px solid rgba(56,189,248,0.12)", backdropFilter: "blur(20px)" }}>
-
-            <div>
-              <p className="text-xs font-semibold text-slate-300 mb-3 uppercase tracking-widest">¿Qué solución necesitas?</p>
-              <div className="flex flex-wrap gap-2">
-                {svcOpts.map(s => {
-                  const on = svcs.includes(s.k);
-                  return (
-                    <button key={s.k} type="button" onClick={() => setSvcs(p => p.includes(s.k) ? p.filter(x => x !== s.k) : [...p, s.k])}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-                      style={{
-                        background: on ? "linear-gradient(135deg,rgba(56,189,248,0.2),rgba(167,139,250,0.2))" : "rgba(255,255,255,0.04)",
-                        border: `1px solid ${on ? "rgba(56,189,248,0.5)" : "rgba(255,255,255,0.08)"}`,
-                        color: on ? "#F1F5F9" : "#94A3B8",
-                      }}>
-                      {on && <CheckCircle2 size={12} />}{s.l}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold text-slate-300 mb-3 uppercase tracking-widest">Presupuesto estimado</p>
-              <div className="grid grid-cols-2 gap-2">
-                {budgetOpts.map(b => {
-                  const on = budget === b.k;
-                  return (
-                    <button key={b.k} type="button" onClick={() => setBudget(b.k)}
-                      className="px-4 py-2.5 rounded-xl text-xs font-medium text-left transition-all"
-                      style={{
-                        background: on ? "rgba(56,189,248,0.12)" : "rgba(255,255,255,0.04)",
-                        border: `1px solid ${on ? "rgba(56,189,248,0.4)" : "rgba(255,255,255,0.08)"}`,
-                        color: on ? "#F1F5F9" : "#94A3B8",
-                      }}>
-                      {b.l}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Tu nombre *</p>
-                <input className={inp} placeholder="Juan Pérez" value={name} onChange={e => setName(e.target.value)} required />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">WhatsApp *</p>
-                <input className={inp} placeholder="829-343-0288" value={phone} onChange={e => setPhone(e.target.value)} required />
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Nombre del negocio *</p>
-              <input className={inp} placeholder="Tienda La Esperanza" value={biz} onChange={e => setBiz(e.target.value)} required />
-            </div>
-
-            <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-              className="btn-primary w-full text-base py-4">
-              <Send size={17} /> Enviar evaluación por WhatsApp
-            </motion.button>
-            <p className="text-xs text-slate-600 text-center">Se abrirá WhatsApp con tu información organizada.</p>
-          </form>
-        </Reveal>
+      <div className="relative">
+        <EvalForm />
       </div>
     </section>
   );
