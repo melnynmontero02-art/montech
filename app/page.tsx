@@ -433,15 +433,15 @@ function FinalSection() {
 
       <div className="relative">
         <Reveal>
-          <p className="text-slate-600 text-xs tracking-[0.35em] uppercase mb-6">Build systems that help businesses grow.</p>
+          <p className="text-slate-600 text-xs tracking-[0.35em] uppercase mb-6">Sistemas que hacen crecer tu negocio.</p>
         </Reveal>
 
         <Reveal delay={0.1}>
           <h2 className="text-white font-black leading-none tracking-tighter select-none"
             style={{ fontSize: "clamp(3.5rem, 14vw, 12rem)", textShadow: "0 0 80px rgba(56,189,248,0.15)" }}>
-            MODERNIZE<br />
-            <span className="text-gradient" style={{ fontSize: "0.85em" }}>YOUR</span><br />
-            BUSINESS
+            MODERNIZA<br />
+            <span className="text-gradient" style={{ fontSize: "0.85em" }}>TU</span><br />
+            NEGOCIO
           </h2>
         </Reveal>
 
