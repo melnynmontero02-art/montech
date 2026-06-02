@@ -11,10 +11,7 @@ import {
   Users, Code2, FileText, CheckCircle2, Send, Zap,
 } from "lucide-react";
 
-const WebGLScene = dynamic(() => import("@/components/canvas/WebGLScene"), {
-  ssr: false,
-  loading: () => null,
-});
+const WebGLScene = dynamic(() => import("@/components/canvas/WebGLScene"), { ssr: false });
 
 /* ── Scroll tracker (updates module-level state for R3F) ── */
 function useScrollTracker() {
