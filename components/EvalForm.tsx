@@ -58,6 +58,7 @@ const STEPS: Step[] = [
       "Mi negocio no se ve profesional",
       "Todo lo hago manual",
       "Necesito automatizar procesos",
+      "Otro",
     ],
   },
   {
@@ -70,6 +71,7 @@ const STEPS: Step[] = [
       "WhatsApp solamente",
       "Sistema viejo / obsoleto",
       "No tengo sistema",
+      "Otro",
     ],
   },
   {
@@ -129,6 +131,7 @@ export default function EvalForm() {
   const [step, setStep] = useState(-1); // -1 = cover
   const [dir, setDir] = useState(1);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [otherText, setOtherText] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
 
   const current = STEPS[step];
@@ -176,7 +179,9 @@ export default function EvalForm() {
   function submit() {
     const get = (k: string) => {
       const v = answers[k];
-      if (Array.isArray(v)) return v.map((x) => `  • ${x}`).join("\n");
+      if (Array.isArray(v)) return v.map((x) =>
+        x === "Otro" && otherText[k] ? `  • Otro: ${otherText[k]}` : `  • ${x}`
+      ).join("\n");
       return v ?? "No especificado";
     };
     const budget = (answers.budget as string[] | undefined)?.join(", ") ?? "No especificado";
@@ -370,6 +375,26 @@ export default function EvalForm() {
                           </button>
                         );
                       })}
+
+                      {/* Text input shown when "Otro" is selected */}
+                      {((answers[current.key] as string[]) ?? []).includes("Otro") && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8, height: 0 }}
+                          animate={{ opacity: 1, y: 0, height: "auto" }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          <input
+                            autoFocus
+                            type="text"
+                            placeholder="Describe tu situación con más detalle..."
+                            value={otherText[current.key] ?? ""}
+                            onChange={(e) =>
+                              setOtherText((prev) => ({ ...prev, [current.key]: e.target.value }))
+                            }
+                            className="w-full mt-1 bg-white/[0.06] border border-brand-blue/40 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm outline-none focus:border-brand-blue/70 focus:ring-1 focus:ring-brand-blue/20 transition-all"
+                          />
+                        </motion.div>
+                      )}
                     </div>
                   )}
 
