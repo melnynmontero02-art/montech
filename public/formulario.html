@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Evaluación para tu Negocio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent:    #4f46e5;
+    --accent-dk: #3730a3;
+    --accent-lt: #ede9fe;
+    --bg:        #ffffff;
+    --surface:   #f8f7ff;
+    --text:      #111827;
+    --muted:     #6b7280;
+    --border:    #e5e7eb;
+    --radius:    10px;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── Progress bar ── */
+  #progress {
+    position: fixed; top: 0; left: 0;
+    height: 3px; background: var(--accent);
+    transition: width .45s ease; z-index: 99;
+  }
+
+  /* ── Screens ── */
+  #wrap { position: relative; width: 100%; height: 100vh; }
+
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 2rem 1.5rem;
+    opacity: 0; pointer-events: none;
+    transform: translateY(32px);
+    transition: opacity .38s ease, transform .38s ease;
+    overflow-y: auto;
+  }
+  .screen.active  { opacity: 1; transform: translateY(0); pointer-events: all; }
+  .screen.out-up  { opacity: 0; transform: translateY(-32px); pointer-events: none; }
+  .screen.out-dn  { opacity: 0; transform: translateY( 32px); pointer-events: none; }
+
+  /* ── Inner card ── */
+  .card { width: 100%; max-width: 560px; }
+
+  /* ── Cover ── */
+  .cover-wrap { text-align: center; }
+  .cover-icon { font-size: 3.2rem; margin-bottom: 1.2rem; }
+  .cover-wrap h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 700; line-height: 1.25; margin-bottom: .9rem;
+  }
+  .cover-wrap p {
+    font-size: .97rem; color: var(--muted);
+    max-width: 420px; margin: 0 auto 1.8rem; line-height: 1.65;
+  }
+
+  /* ── Labels ── */
+  .q-num  { font-size: .75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .q-title { font-size: clamp(1.15rem, 4vw, 1.45rem); font-weight: 700; line-height: 1.3; margin-bottom: .35rem; }
+  .q-hint  { font-size: .82rem; color: var(--muted); margin-bottom: 1.3rem; }
+
+  /* ── Text input ── */
+  .field {
+    width: 100%;
+    border: none; border-bottom: 2px solid var(--border);
+    padding: .7rem 0; font-size: 1.05rem;
+    font-family: inherit; background: transparent;
+    color: var(--text); outline: none;
+    transition: border-color .2s;
+  }
+  .field:focus { border-color: var(--accent); }
+  .field::placeholder { color: #d1d5db; }
+
+  /* ── Options ── */
+  .opts { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.4rem; }
+
+  .opt {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .85rem 1rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer; user-select: none;
+    transition: background .15s, border-color .15s;
+  }
+  .opt:hover { background: #f3f0ff; border-color: #c4b5fd; }
+  .opt.sel   { background: var(--accent-lt); border-color: var(--accent); }
+
+  .opt-k {
+    display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 5px;
+    background: #fff; border: 1.5px solid var(--border);
+    font-size: .72rem; font-weight: 700; color: var(--muted);
+    flex-shrink: 0; transition: all .15s;
+  }
+  .opt.sel .opt-k { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .opt-t { font-size: .92rem; font-weight: 500; line-height: 1.3; }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    background: var(--accent); color: #fff;
+    border: none; padding: .82rem 2rem;
+    border-radius: var(--radius); font-size: .97rem;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    transition: background .15s, transform .1s;
+    display: inline-flex; align-items: center; gap: .45rem;
+  }
+  .btn-primary:hover   { background: var(--accent-dk); }
+  .btn-primary:active  { transform: scale(.97); }
+  .btn-primary:disabled { background: #d1d5db; cursor: not-allowed; }
+
+  .btn-start {
+    background: var(--accent); color: #fff;
+    border: none; padding: 1rem 2.6rem;
+    border-radius: 12px; font-size: 1.05rem;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: background .15s, transform .1s;
+  }
+  .btn-start:hover  { background: var(--accent-dk); }
+  .btn-start:active { transform: scale(.97); }
+
+  .btn-back {
+    background: none; border: none;
+    color: var(--muted); cursor: pointer;
+    font-size: .88rem; font-family: inherit;
+    display: inline-flex; align-items: center; gap: .3rem;
+    padding: .45rem .1rem; transition: color .15s;
+  }
+  .btn-back:hover { color: var(--text); }
+
+  .nav { display: flex; align-items: center; gap: 1rem; margin-top: .8rem; }
+
+  /* ── Thank you ── */
+  .ty-wrap { text-align: center; }
+  .ty-icon { font-size: 3.8rem; margin-bottom: 1.2rem; }
+  .ty-wrap h2 { font-size: clamp(1.4rem, 5vw, 1.85rem); font-weight: 700; margin-bottom: .8rem; }
+  .ty-wrap p { color: var(--muted); font-size: .97rem; max-width: 400px; margin: 0 auto; line-height: 1.65; }
+
+  @media (max-width: 480px) {
+    .screen { justify-content: flex-start; padding-top: 4.5rem; }
+    .cover-wrap { text-align: left; }
+    .cover-wrap p { text-align: left; margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress" style="width:0%"></div>
+
+<div id="wrap">
+
+  <!-- 0 · Cover -->
+  <div class="screen active" id="s0">
+    <div class="card cover-wrap">
+      <div class="cover-icon">🚀</div>
+      <h1>Evaluación rápida para tu negocio</h1>
+      <p>Completa esta evaluación para que podamos entender qué solución necesita tu negocio y enviarte una propuesta personalizada.</p>
+      <button class="btn-start" onclick="go(1)">Comenzar &rarr;</button>
+    </div>
+  </div>
+
+  <!-- 1 · Nombre del negocio -->
+  <div class="screen" id="s1">
+    <div class="card">
+      <div class="q-num">Pregunta 1 de 11</div>
+      <div class="q-title">¿Cuál es el nombre de tu negocio?</div>
+      <input class="field" id="f-biz" type="text" placeholder="Escribe aquí..." autocomplete="off"
+             oninput="syncBtn('b1','f-biz')"
+             onkeydown="if(event.key==='Enter'&&this.value.trim())save('biz','f-biz',2)">
+      <div class="nav">
+        <button class="btn-primary" id="b1" disabled onclick="save('biz','f-biz',2)">Continuar &rarr;</button>
+        <button class="btn-back" onclick="go(0)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 · Nombre de contacto -->
+  <div class="screen" id="s2">
+    <div class="card">
+      <div class="q-num">Pregunta 2 de 11</div>
+      <div class="q-title">¿Cuál es tu nombre?</div>
+      <input class="field" id="f-name" type="text" placeholder="Escribe aquí..." autocomplete="off"
+             oninput="syncBtn('b2','f-name')"
+             onkeydown="if(event.key==='Enter'&&this.value.trim())save('name','f-name',3)">
+      <div class="nav">
+        <button class="btn-primary" id="b2" disabled onclick="save('name','f-name',3)">Continuar &rarr;</button>
+        <button class="btn-back" onclick="go(1)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 · WhatsApp -->
+  <div class="screen" id="s3">
+    <div class="card">
+      <div class="q-num">Pregunta 3 de 11</div>
+      <div class="q-title">¿Cuál es tu número de WhatsApp?</div>
+      <input class="field" id="f-wa" type="tel" placeholder="Ej. 809-555-0000" autocomplete="off"
+             oninput="syncBtn('b3','f-wa')"
+             onkeydown="if(event.key==='Enter'&&this.value.trim())save('wa','f-wa',4)">
+      <div class="nav">
+        <button class="btn-primary" id="b3" disabled onclick="save('wa','f-wa',4)">Continuar &rarr;</button>
+        <button class="btn-back" onclick="go(2)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 · Solución (multi) -->
+  <div class="screen" id="s4">
+    <div class="card">
+      <div class="q-num">Pregunta 4 de 11</div>
+      <div class="q-title">¿Qué solución necesitas?</div>
+      <div class="q-hint">Puedes seleccionar varias opciones</div>
+      <div class="opts" id="o4">
+        <div class="opt" onclick="toggle(this,'o4','b4')" data-v="Sistema POS con inventario"><div class="opt-k">A</div><div class="opt-t">Sistema POS con inventario</div></div>
+        <div class="opt" onclick="toggle(this,'o4','b4')" data-v="Página web moderna"><div class="opt-k">B</div><div class="opt-t">Página web moderna</div></div>
+        <div class="opt" onclick="toggle(this,'o4','b4')" data-v="Automatización de WhatsApp 24/7"><div class="opt-k">C</div><div class="opt-t">Automatización de WhatsApp 24/7</div></div>
+        <div class="opt" onclick="toggle(this,'o4','b4')" data-v="Sistema de citas/reservas"><div class="opt-k">D</div><div class="opt-t">Sistema de citas / reservas</div></div>
+        <div class="opt" onclick="toggle(this,'o4','b4')" data-v="CRM para clientes"><div class="opt-k">E</div><div class="opt-t">CRM para clientes</div></div>
+        <div class="opt" onclick="toggle(this,'o4','b4')" data-v="Tienda online"><div class="opt-k">F</div><div class="opt-t">Tienda online</div></div>
+        <div class="opt" onclick="toggle(this,'o4','b4')" data-v="Sistema de facturación"><div class="opt-k">G</div><div class="opt-t">Sistema de facturación</div></div>
+        <div class="opt" onclick="toggle(this,'o4','b4')" data-v="Otro"><div class="opt-k">H</div><div class="opt-t">Otro</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn-primary" id="b4" disabled onclick="saveOpts('sol','o4',5)">Continuar &rarr;</button>
+        <button class="btn-back" onclick="go(3)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 · Problema (multi) -->
+  <div class="screen" id="s5">
+    <div class="card">
+      <div class="q-num">Pregunta 5 de 11</div>
+      <div class="q-title">¿Cuál es el principal problema de tu negocio?</div>
+      <div class="q-hint">Puedes seleccionar varias opciones</div>
+      <div class="opts" id="o5">
+        <div class="opt" onclick="toggle(this,'o5','b5')" data-v="Pierdo tiempo respondiendo mensajes"><div class="opt-k">A</div><div class="opt-t">Pierdo tiempo respondiendo mensajes</div></div>
+        <div class="opt" onclick="toggle(this,'o5','b5')" data-v="No tengo control del inventario"><div class="opt-k">B</div><div class="opt-t">No tengo control del inventario</div></div>
+        <div class="opt" onclick="toggle(this,'o5','b5')" data-v="Se me pierden clientes"><div class="opt-k">C</div><div class="opt-t">Se me pierden clientes</div></div>
+        <div class="opt" onclick="toggle(this,'o5','b5')" data-v="Mi negocio no se ve profesional"><div class="opt-k">D</div><div class="opt-t">Mi negocio no se ve profesional</div></div>
+        <div class="opt" onclick="toggle(this,'o5','b5')" data-v="Todo lo hago manual"><div class="opt-k">E</div><div class="opt-t">Todo lo hago manual</div></div>
+        <div class="opt" onclick="toggle(this,'o5','b5')" data-v="Necesito automatizar procesos"><div class="opt-k">F</div><div class="opt-t">Necesito automatizar procesos</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn-primary" id="b5" disabled onclick="saveOpts('prob','o5',6)">Continuar &rarr;</button>
+        <button class="btn-back" onclick="go(4)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 · Cómo maneja (multi) -->
+  <div class="screen" id="s6">
+    <div class="card">
+      <div class="q-num">Pregunta 6 de 11</div>
+      <div class="q-title">¿Cómo manejas actualmente tu negocio?</div>
+      <div class="q-hint">Puedes seleccionar varias opciones</div>
+      <div class="opts" id="o6">
+        <div class="opt" onclick="toggle(this,'o6','b6')" data-v="Excel"><div class="opt-k">A</div><div class="opt-t">Excel</div></div>
+        <div class="opt" onclick="toggle(this,'o6','b6')" data-v="Cuaderno / manual"><div class="opt-k">B</div><div class="opt-t">Cuaderno / manual</div></div>
+        <div class="opt" onclick="toggle(this,'o6','b6')" data-v="WhatsApp solamente"><div class="opt-k">C</div><div class="opt-t">WhatsApp solamente</div></div>
+        <div class="opt" onclick="toggle(this,'o6','b6')" data-v="Sistema viejo/obsoleto"><div class="opt-k">D</div><div class="opt-t">Sistema viejo / obsoleto</div></div>
+        <div class="opt" onclick="toggle(this,'o6','b6')" data-v="No tengo sistema"><div class="opt-k">E</div><div class="opt-t">No tengo sistema</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn-primary" id="b6" disabled onclick="saveOpts('mgmt','o6',7)">Continuar &rarr;</button>
+        <button class="btn-back" onclick="go(5)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 · Presupuesto (multi) -->
+  <div class="screen" id="s7">
+    <div class="card">
+      <div class="q-num">Pregunta 7 de 11</div>
+      <div class="q-title">¿Qué presupuesto tienes pensado invertir?</div>
+      <div class="q-hint">Puedes seleccionar varias opciones</div>
+      <div class="opts" id="o7">
+        <div class="opt" onclick="toggle(this,'o7','b7')" data-v="RD$5,000 – RD$10,000"><div class="opt-k">A</div><div class="opt-t">RD$5,000 – RD$10,000</div></div>
+        <div class="opt" onclick="toggle(this,'o7','b7')" data-v="RD$10,000 – RD$25,000"><div class="opt-k">B</div><div class="opt-t">RD$10,000 – RD$25,000</div></div>
+        <div class="opt" onclick="toggle(this,'o7','b7')" data-v="RD$25,000 – RD$50,000"><div class="opt-k">C</div><div class="opt-t">RD$25,000 – RD$50,000</div></div>
+        <div class="opt" onclick="toggle(this,'o7','b7')" data-v="RD$50,000 – RD$100,000"><div class="opt-k">D</div><div class="opt-t">RD$50,000 – RD$100,000</div></div>
+        <div class="opt" onclick="toggle(this,'o7','b7')" data-v="Más de RD$100,000"><div class="opt-k">E</div><div class="opt-t">Más de RD$100,000</div></div>
+        <div class="opt" onclick="toggle(this,'o7','b7')" data-v="Necesito asesoría primero"><div class="opt-k">F</div><div class="opt-t">Necesito asesoría primero</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn-primary" id="b7" disabled onclick="saveOpts('budget','o7',8)">Continuar &rarr;</button>
+        <button class="btn-back" onclick="go(6)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 · Urgencia (single) -->
+  <div class="screen" id="s8">
+    <div class="card">
+      <div class="q-num">Pregunta 8 de 11</div>
+      <div class="q-title">¿Qué tan urgente necesitas la solución?</div>
+      <div class="opts" id="o8">
+        <div class="opt" onclick="pick(this,'o8','urgency',9)" data-v="Lo antes posible"><div class="opt-k">A</div><div class="opt-t">Lo antes posible</div></div>
+        <div class="opt" onclick="pick(this,'o8','urgency',9)" data-v="Este mes"><div class="opt-k">B</div><div class="opt-t">Este mes</div></div>
+        <div class="opt" onclick="pick(this,'o8','urgency',9)" data-v="En los próximos 3 meses"><div class="opt-k">C</div><div class="opt-t">En los próximos 3 meses</div></div>
+        <div class="opt" onclick="pick(this,'o8','urgency',9)" data-v="Solo estoy cotizando"><div class="opt-k">D</div><div class="opt-t">Solo estoy cotizando</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(7)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 · Inventario (single) -->
+  <div class="screen" id="s9">
+    <div class="card">
+      <div class="q-num">Pregunta 9 de 11</div>
+      <div class="q-title">¿Tu negocio maneja productos o inventario?</div>
+      <div class="opts" id="o9">
+        <div class="opt" onclick="pick(this,'o9','inv',10)" data-v="Sí"><div class="opt-k">A</div><div class="opt-t">Sí</div></div>
+        <div class="opt" onclick="pick(this,'o9','inv',10)" data-v="No"><div class="opt-k">B</div><div class="opt-t">No</div></div>
+        <div class="opt" onclick="pick(this,'o9','inv',10)" data-v="Muy poco inventario"><div class="opt-k">C</div><div class="opt-t">Muy poco inventario</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(8)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 · Crecer (single) -->
+  <div class="screen" id="s10">
+    <div class="card">
+      <div class="q-num">Pregunta 10 de 11</div>
+      <div class="q-title">¿Quieres que el sistema pueda crecer en el futuro?</div>
+      <div class="opts" id="o10">
+        <div class="opt" onclick="pick(this,'o10','scale',11)" data-v="Sí"><div class="opt-k">A</div><div class="opt-t">Sí</div></div>
+        <div class="opt" onclick="pick(this,'o10','scale',11)" data-v="No"><div class="opt-k">B</div><div class="opt-t">No</div></div>
+        <div class="opt" onclick="pick(this,'o10','scale',11)" data-v="No estoy seguro"><div class="opt-k">C</div><div class="opt-t">No estoy seguro</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(9)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 · Llamada (single) -->
+  <div class="screen" id="s11">
+    <div class="card">
+      <div class="q-num">Pregunta 11 de 11</div>
+      <div class="q-title">¿Quieres agendar una llamada para recibir una propuesta personalizada?</div>
+      <div class="opts" id="o11">
+        <div class="opt" onclick="pick(this,'o11','call',12)" data-v="Sí, quiero agendar una llamada"><div class="opt-k">A</div><div class="opt-t">Sí, quiero agendar una llamada</div></div>
+        <div class="opt" onclick="pick(this,'o11','call',12)" data-v="No por ahora"><div class="opt-k">B</div><div class="opt-t">No por ahora</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(10)">&#8592; Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 · Gracias -->
+  <div class="screen" id="s12">
+    <div class="card ty-wrap">
+      <div class="ty-icon">🎉</div>
+      <h2>¡Gracias por completar la evaluación!</h2>
+      <p>Con esta información analizaremos tu negocio y te enviaremos una propuesta ajustada a lo que realmente necesitas.</p>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+  const TOTAL = 11;
+  let cur = 0;
+  const data = {};
+
+  function go(n) {
+    const prev = document.getElementById('s' + cur);
+    const next = document.getElementById('s' + n);
+    const fwd  = n > cur;
+
+    prev.classList.remove('active');
+    prev.classList.add(fwd ? 'out-up' : 'out-dn');
+    setTimeout(() => prev.classList.remove('out-up', 'out-dn'), 400);
+
+    next.style.cssText = 'opacity:0;transform:translateY(' + (fwd ? 32 : -32) + 'px);transition:none';
+    next.classList.add('active');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      next.style.cssText = '';
+    }));
+
+    cur = n;
+
+    const pct = n === 0 ? 0 : n === 12 ? 100 : Math.round(n / TOTAL * 100);
+    document.getElementById('progress').style.width = pct + '%';
+  }
+
+  function syncBtn(btnId, fieldId) {
+    document.getElementById(btnId).disabled = !document.getElementById(fieldId).value.trim();
+  }
+
+  function save(key, fieldId, next) {
+    const v = document.getElementById(fieldId).value.trim();
+    if (!v) return;
+    data[key] = v;
+    go(next);
+  }
+
+  function toggle(el, grpId, btnId) {
+    el.classList.toggle('sel');
+    document.getElementById(btnId).disabled =
+      document.querySelectorAll('#' + grpId + ' .opt.sel').length === 0;
+  }
+
+  function saveOpts(key, grpId, next) {
+    data[key] = [...document.querySelectorAll('#' + grpId + ' .opt.sel')].map(e => e.dataset.v);
+    go(next);
+  }
+
+  function pick(el, grpId, key, next) {
+    document.querySelectorAll('#' + grpId + ' .opt').forEach(o => o.classList.remove('sel'));
+    el.classList.add('sel');
+    data[key] = el.dataset.v;
+    setTimeout(() => go(next), 220);
+  }
+</script>
+</body>
+</html>
