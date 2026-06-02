@@ -1,30 +1,15 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { scrollState } from "@/lib/scroll";
 import Navbar from "@/components/Navbar";
 import SmoothScroll from "@/components/SmoothScroll";
+import Scene3D from "@/components/Scene3D";
 import {
   ArrowRight, ShoppingCart, Globe, MessageCircle,
   Users, Code2, FileText, CheckCircle2, Send, Zap,
 } from "lucide-react";
 
-const WebGLScene = dynamic(() => import("@/components/canvas/WebGLScene"), { ssr: false });
-
-/* ── Scroll tracker (updates module-level state for R3F) ── */
-function useScrollTracker() {
-  useEffect(() => {
-    const update = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      if (total <= 0) return;
-      scrollState.progress = window.scrollY / total;
-    };
-    window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
-  }, []);
-}
 
 /* ── Custom cursor ── */
 function Cursor() {
@@ -508,13 +493,12 @@ function FinalSection() {
    ROOT
 ══════════════════════════════════════ */
 export default function Home() {
-  useScrollTracker();
   return (
     <SmoothScroll>
       <Cursor />
 
-      {/* 3D WebGL scene — fixed, behind everything */}
-      <WebGLScene />
+      {/* 3D CSS scene — fixed, behind everything */}
+      <Scene3D />
 
       {/* Cinematic scan-lines */}
       <div className="scanlines pointer-events-none" />
