@@ -79,7 +79,6 @@ const STEPS: Step[] = [
     key: "budget",
     question: "¿Qué presupuesto tienes pensado invertir?",
     options: [
-      "RD$5,000 – RD$10,000",
       "RD$10,000 – RD$25,000",
       "RD$25,000 – RD$50,000",
       "RD$50,000 – RD$100,000",
